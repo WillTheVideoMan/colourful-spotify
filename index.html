@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Custom LED Player</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body class = "dark">
+  <div id="error_banner" class = "bar top error">
+    <p>Oops - Something went wrong.</p>
+  </div>
+  <div id="background" class="wrapper center middle stack gradient track">
+    <div class="album_art">
+      <img id="track_album_art" src="/images/spotify-640x640.png" />
+    </div>
+    <h1 id="track_name">...</h1>
+    <h3 id="track_artist">...</h3>
+  </div>
+  <div id="control_container" class="bar bottom">
+    <div class="wrapper middle stack">
+      <div class="controls">
+        <div class="buttons ">
+          <i id="skip_prev" class="material-icons">skip_previous</i>
+          <i id="play_pause" class="material-icons">remove_circle_outline</i>
+          <i id="skip_next" class="material-icons">skip_next</i>
+        </div>
+        <div class="seek">
+          <p id="track_time_position">-:-</p>
+          <input type="range" min="0" max="0" value="0" class="slider" id="track_position_slider">
+          <p id="track_time_duration">-:-</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script src = "/js/palettify.js"></script>
+  <script src="/js/main.js"></script>
+  <!-- End Scripts -->
+
+</body>
+</html>
