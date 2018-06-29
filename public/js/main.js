@@ -473,6 +473,9 @@ $(function() {
           "valence": data.valence
         }
 
+        //prevent loudness being too quiet (for the purpose of the background opacity)
+        if (features.loudness < -20) features.loudness = -20;
+
         console.log("features recieved");
 
         //done, so return to a callback.
@@ -499,7 +502,7 @@ $(function() {
   //Set the features of the background based on the features of the track.
   function set_background_features(features) {
     rotation_velocity = Number(((features.tempo * features.energy) / 2500).toPrecision(2));
-    background_opacity = Number(((features.loudness + 25) / 25).toPrecision(3));
+    background_opacity = Number(((features.loudness + 20) / 20).toPrecision(3));
     console.log(background_opacity);
   }
 
