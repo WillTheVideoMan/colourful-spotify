@@ -16,6 +16,9 @@ $(function() {
   var rotation_velocity = 0.015;
   var background_opacity = 0.75;
   var rotator_ticker = null;
+  var activity_timeout = 2500;
+  var controls_hidden = false;
+  var inactivity_timer = window.setTimeout(hide_controls, activity_timeout);
 
   //When Spotify is ready, initialize the player.
   window.onSpotifyWebPlaybackSDKReady = () => {
@@ -360,14 +363,10 @@ $(function() {
   function resume_tickers() {
 
     //Start a rotation ticker (if not already started).
-    if (!rotator_ticker) {
-      rotator_ticker = window.setInterval(update_background, 17);
-    }
+    if (!rotator_ticker) rotator_ticker = window.setInterval(update_background, 17);
 
     //Start a position ticker (if not already started).
-    if (!position_ticker) {
-      position_ticker = window.setInterval(update_position, 17);
-    }
+    if (!position_ticker) position_ticker = window.setInterval(update_position, 17);
 
   }
 
@@ -508,6 +507,51 @@ $(function() {
     background_opacity = 0.5 + ((features.valence + features.loudness) / 4)
     console.log(background_opacity);
   }
+
+  //Show the control bar.
+  function show_controls() {
+
+    //Let the mouse movement lister know that the controls are no longer hidden.
+    controls_hidden = false;
+
+    //Stop any animations that the control bar might have from the hide_controls function.
+    $("#control_container").stop();
+
+    //Reset the cursor to the default.
+    $(document.body).css("cursor", "default");
+
+    //Set the control bar to full opacity.
+    $("#control_container").css("opacity", "1");
+
+  }
+
+  //Hide the control bar.
+  function hide_controls() {
+
+    //Let the mouse movement lister know that the controls are now hidden.
+    controls_hidden = true;
+
+    //Hide the cursor on the body.
+    $(document.body).css("cursor", "none");
+
+    //Fade out the control bar over 1500ms using opacity.
+    $("#control_container").animate({ opacity: 0 }, 1500);
+
+  }
+
+  //Mouse movement listener for the whole document.
+  $(document).mousemove(function() {
+
+    //On mouse move, cleae the inactivity timer.
+    window.clearTimeout(inactivity_timer);
+
+    //If the controls are hidden, then show them.
+    if (controls_hidden) show_controls();
+
+    //Reactivate the inactivity timer to wait for inactivity, and hide the controls is inactive.
+    inactivity_timer = window.setTimeout(hide_controls, activity_timeout);
+
+  });
 
   //Ininitate the player UI components.
   reset_player();
