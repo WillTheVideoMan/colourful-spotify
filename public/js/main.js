@@ -257,7 +257,7 @@ $(function() {
       "features": {
         "tempo": 50,
         "energy": 0.5,
-        "loudness": -10,
+        "loudness": 0.5,
         "valence": 0.5
       },
       "palette": [
@@ -474,7 +474,10 @@ $(function() {
         }
 
         //prevent loudness being too quiet (for the purpose of the background opacity)
-        if (features.loudness < -20) features.loudness = -20;
+        if (features.loudness < -15) features.loudness = -15;
+
+        //Scale the loudness between 0 and 1 (where 1 is the loudest);
+        features.loudness = Number(((features.loudness + 15) / 15).toPrecision(3));
 
         console.log("features recieved");
 
@@ -488,7 +491,7 @@ $(function() {
         features = {
           "tempo": 50,
           "energy": 0.5,
-          "loudness": -10,
+          "loudness": 0.5,
           "valence": 0.5
         }
 
@@ -502,7 +505,7 @@ $(function() {
   //Set the features of the background based on the features of the track.
   function set_background_features(features) {
     rotation_velocity = Number(((features.tempo * features.energy) / 2500).toPrecision(2));
-    background_opacity = Number(((features.loudness + 20) / 20).toPrecision(3));
+    background_opacity = 0.5 + ((features.valence + features.loudness) / 4)
     console.log(background_opacity);
   }
 
