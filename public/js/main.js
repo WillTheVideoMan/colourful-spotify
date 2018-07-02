@@ -14,7 +14,7 @@ $(function() {
   var background = $("#background");
   var angle = 0;
   var rotation_velocity = 0.015;
-  var background_opacity = 0.8;
+  var background_opacity = 0.75;
   var rotator_ticker = null;
 
   //When Spotify is ready, initialize the player.
