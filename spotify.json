@@ -1,1 +1,8 @@
-{"client_id":"ba12cd1cf3204725861312e25f861a36","client_secret":"b8d0783e80c84ed38e71829712018dee","refresh_token":"AQCgpzKj3hbs7ZbfZxTULKJVUN4aGbkk6oZKP0cBAfeymzCuJ7uk_YeFOhs6NqmB5Rwm9Lc9ayMQPojYPUM9ftG51H50jcVHiwHvYMQxlQPllhoSnMUQ1URbBnaZQAGdJ8A","state":"abcdefghijklmnopqrstuvwxyz123456789","redirect":"http://localhost:3000/spotify/auth/callback","scopes":"streaming user-read-birthdate user-read-email user-read-private"}
+{
+  "client_id":"",
+  "client_secret":"",
+  "refresh_token":"",
+  "state":"",
+  "redirect":"",
+  "scopes":"streaming user-read-birthdate user-read-email user-read-private user-read-currently-playing"
+}
