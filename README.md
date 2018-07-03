@@ -18,6 +18,7 @@ Finally, to give motion to the background, the Spotify API 'features' endpoint w
 ## Usage
 
  1. Clone repo
+ 2. Populate the spotify.json file with your application details. These can be gotten from the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/login)
  2. Run `npm install`
  3. Run `node index.js` (or use a process manager like [pm2](https://www.npmjs.com/package/pm2))
  4. Browse to `http://localhost:3000/spotify`
