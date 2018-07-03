@@ -9,6 +9,7 @@ $(function() {
   var prev_time = Date.now();
   var error_refresh_timer = null;
   var token = "";
+  var online_pinger = window.setInterval(check_online, 3000);
 
   //Background colour and rotation variables.
   var background = $("#background");
@@ -189,7 +190,7 @@ $(function() {
     local_track.id = new_track.id;
     local_track.name = new_track.name;
     local_track.art_url = new_track.album.images[2].url;
-    local_track.artist = new_track.artists[0].name;
+    local_track.artists = new_track.artists;
     local_track.duration = duration;
 
     //generate a new palette;
@@ -216,8 +217,18 @@ $(function() {
   function update_track_UI() {
 
     if (!error_state) {
+      var artists_string = local_track.artists[0].name;
+
+      //If there is more than one artists, then append them to the string.
+      if (local_track.artists.length > 1) {
+        for (var i = 1; i < local_track.artists.length; i++) {
+          artists_string += ", " + local_track.artists[i].name;
+        }
+      }
+
+      //Update DOM elements
       $("#track_name").text(local_track.name);
-      $("#track_artist").text(local_track.artist);
+      $("#track_artist").text(artists_string);
       $("#track_album_art").attr("src", local_track.art_url);
       $("#track_time_duration").text(ms_to_string(local_track.duration));
       $("#track_position_slider").prop('max', local_track.duration);
@@ -252,7 +263,7 @@ $(function() {
     local_track = {
       "id": "",
       "name": "...",
-      "artist": "...",
+      "artists": [{ "name": "..." }],
       "paused": true,
       "position": 0,
       "duration": 0,
@@ -291,7 +302,6 @@ $(function() {
     if (error_state) {
       ("#error_banner").animate({ bottom: "+=40px" }, 500);
       error_state = false;
-      window.clearTimeout(error_refresh);
       reset_player();
     }
 
@@ -303,7 +313,7 @@ $(function() {
 
     //Update some UI to give info to the user.
     local_track.name = "Ready To Play.";
-    local_track.artist = "Visit any Spotify player and choose 'Custom LED Player' as a device.";
+    local_track.artists[0].name = "Visit any Spotify player and choose 'Custom LED Player' as a device.";
 
   }
 
@@ -438,9 +448,6 @@ $(function() {
       //Set the player to an error state (prevents updates)
       error_state = true;
 
-      //Set timeout for fifteen seconds page refresh attempt (unless cancelled);
-      error_refresh = window.setTimeout(function() { location.reload(true); }, 15000);
-
       //Define and show an error message.
       var message = "Oops - Something went wrong (code: " + error + ").";
       $("#error_banner p").text(message);
@@ -537,6 +544,27 @@ $(function() {
     //Fade out the control bar over 1500ms using opacity.
     $("#control_container").animate({ opacity: 0 }, 1500);
 
+  }
+
+  //Function to ping the server and check for online connectivity.
+  function check_online() {
+
+    //Define AJAX call, adding the bearer token as authentication, to visit an arbituary endpoint.
+    $.ajax({
+      url: "https://api.spotify.com/v1/me",
+      type: "GET",
+      beforeSend: function(xhr) { xhr.setRequestHeader('Authorization', 'Bearer ' + token); },
+      complete: function(xhr, textStatus) {
+        //If status is 200, then we are online. Else, offline.
+        if (xhr.status == 200) {
+          //If we are recovering from an error, reload.
+          if (error_state) location.reload(true);
+        } else {
+          //Handle Error
+          handle_error("offline");
+        }
+      }
+    });
   }
 
   //Mouse movement listener for the whole document.
