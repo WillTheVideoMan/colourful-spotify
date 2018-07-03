@@ -7,7 +7,6 @@ $(function() {
   var first_load = true;
   var position_ticker = null;
   var prev_time = Date.now();
-  var error_refresh_timer = null;
   var token = "";
   var online_pinger = window.setInterval(check_online, 3000);
 
