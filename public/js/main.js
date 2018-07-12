@@ -8,7 +8,7 @@ $(function() {
   var position_ticker = null;
   var prev_time = Date.now();
   var token = "";
-  var online_pinger = window.setInterval(check_online, 3000);
+  var online_pinger = window.setInterval(check_online, 5000);
 
   //Background colour and rotation variables.
   var background = $("#background");
@@ -72,7 +72,7 @@ $(function() {
         //If the song has changed
         if (state.track_window.current_track.id != local_track.id) {
           //Update the local track.
-          update_track(state.track_window.current_track, state.duration);
+          update_track(state.track_window.current_track);
         }
 
         //If the song has been paused
@@ -185,19 +185,20 @@ $(function() {
   };
 
   //update the local_track object.
-  function update_track(new_track, duration) {
+  function update_track(new_track) {
     local_track.id = new_track.id;
     local_track.name = new_track.name;
     local_track.art_url = new_track.album.images[2].url;
     local_track.artists = new_track.artists;
-    local_track.duration = duration;
+    local_track.duration = new_track.duration_ms;
+    local_track.type = new_track.type;
 
     //generate a new palette;
     get_palette_from_image(local_track.art_url, 6, function(palette) {
       local_track.palette = palette;
 
       //Get track features. Update the background.
-      get_features_from_track(local_track.id, function(features) {
+      get_features_from_track(local_track, function(features) {
         local_track.features = features;
         set_background_features(local_track.features);
 
@@ -267,6 +268,7 @@ $(function() {
       "position": 0,
       "duration": 0,
       "art_url": "/images/spotify-640x640.png",
+      "type": "",
       "features": {
         "tempo": 50,
         "energy": 0.5,
@@ -281,7 +283,9 @@ $(function() {
         [84, 220, 132],
         [73, 216, 121]
       ]
-    }
+    };
+
+    console.log(local_track);
 
     //Since playback is essentially pausing, handle pause.
     pause_tickers();
@@ -457,54 +461,63 @@ $(function() {
   }
 
   //Function to visit the Spotify API and get track features using the 'features' endpoint
-  function get_features_from_track(id, done) {
+  function get_features_from_track(track_object, done) {
 
-    //Define endpoint URL
-    var audio_features_url = "https://api.spotify.com/v1/audio-features/" + id;
+    var features = {};
 
-    //Define AJAX call, adding the bearer token as authentication.
-    $.ajax({
-      url: audio_features_url,
-      type: "GET",
-      beforeSend: function(xhr) { xhr.setRequestHeader('Authorization', 'Bearer ' + token); },
-      success: function(data) {
-        var features = {};
+    //If a track is being played (over say an episode or advert) then features are avaliable.
+    if (track_object.type == "track") {
 
-        //Update the local_track with track features.
-        features = {
-          "tempo": data.tempo,
-          "energy": data.energy,
-          "loudness": data.loudness,
-          "valence": data.valence
+      //Define endpoint URL
+      var audio_features_url = "https://api.spotify.com/v1/audio-features/" + track_object.id;
+
+      //Define AJAX call, adding the bearer token as authentication.
+      $.ajax({
+        url: audio_features_url,
+        type: "GET",
+        beforeSend: function(xhr) { xhr.setRequestHeader('Authorization', 'Bearer ' + token); },
+        success: function(data) {
+
+
+          //Update the local_track with track features.
+          features = {
+            "tempo": data.tempo,
+            "energy": data.energy,
+            "loudness": data.loudness,
+            "valence": data.valence
+          }
+
+          //prevent loudness being too quiet (for the purpose of the background opacity)
+          if (features.loudness < -15) features.loudness = -15;
+
+          //Scale the loudness between 0 and 1 (where 1 is the loudest);
+          features.loudness = Number(((features.loudness + 15) / 15).toPrecision(3));
+
+          console.log("features recieved");
+
+          //done, so return to a callback.
+          done(features);
+
+        },
+        error: function() {
+          done(default_features());
         }
 
-        //prevent loudness being too quiet (for the purpose of the background opacity)
-        if (features.loudness < -15) features.loudness = -15;
+      });
+    } else {
+      done(default_features());
+    }
+  }
 
-        //Scale the loudness between 0 and 1 (where 1 is the loudest);
-        features.loudness = Number(((features.loudness + 15) / 15).toPrecision(3));
-
-        console.log("features recieved");
-
-        //done, so return to a callback.
-        done(features);
-
-      },
-      error: function() {
-
-        //resets for features.
-        features = {
-          "tempo": 50,
-          "energy": 0.5,
-          "loudness": 0.5,
-          "valence": 0.5
-        }
-
-        console.log("unable to get track features");
-
-      }
-
-    });
+  //A function which returns the default features of a track object.
+  function default_features() {
+    //resets for features.
+    return {
+      "tempo": 50,
+      "energy": 0.5,
+      "loudness": 0.5,
+      "valence": 0.5
+    }
   }
 
   //Set the features of the background based on the features of the track.
@@ -555,7 +568,7 @@ $(function() {
       beforeSend: function(xhr) { xhr.setRequestHeader('Authorization', 'Bearer ' + token); },
       complete: function(xhr, textStatus) {
         //If status is 200, then we are online. Else, offline.
-        if (xhr.status == 200) {
+        if (xhr.status != 0) {
           //If we are recovering from an error, reload.
           if (error_state) location.reload(true);
         } else {
