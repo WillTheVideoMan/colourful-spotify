@@ -9,8 +9,10 @@
   "author": "Will Hall",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-redis": "^3.4.0",
     "express": "^4.16.3",
-    "fs": "0.0.1-security",
+    "express-session": "^1.15.6",
     "request": "^2.87.0"
   }
 }

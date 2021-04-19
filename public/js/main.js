@@ -357,7 +357,7 @@ $(function() {
   //Function to fetch a new access token from a given API endpoint (Async).
   function getToken(done) {
     console.log("getting new token");
-    $.get("/spotify/auth/token/new", function(data) {
+    $.get("/auth/token/new", function(data) {
       if (data.error) {
         if (data.error.reason == "refresh_token_expired") {
           console.log("App has become unauthorised.");
@@ -563,9 +563,8 @@ $(function() {
 
     //Define AJAX call, adding the bearer token as authentication, to visit an arbituary endpoint.
     $.ajax({
-      url: "https://api.spotify.com/v1/me",
+      url: "/ping",
       type: "GET",
-      beforeSend: function(xhr) { xhr.setRequestHeader('Authorization', 'Bearer ' + token); },
       complete: function(xhr, textStatus) {
         //If status is 200, then we are online. Else, offline.
         if (xhr.status != 0) {

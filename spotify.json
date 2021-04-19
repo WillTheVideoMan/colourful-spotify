@@ -1,8 +1,0 @@
-{
-  "client_id":"",
-  "client_secret":"",
-  "refresh_token":"",
-  "state":"",
-  "redirect":"",
-  "scopes":"streaming user-read-birthdate user-read-email user-read-private user-read-currently-playing"
-}
